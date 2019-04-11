@@ -1,0 +1,71 @@
+configure system name R4
+configure router interface system address 10.1.255.4/32
+configure port 1/1/1 no shutdown
+configure port 1/1/2 no shutdown
+configure port 1/1/3 ethernet mode access
+configure port 1/1/3 no shutdown
+configure port 1/1/4 no shutdown
+configure port 1/1/4 ethernet mtu 1514
+configure router interface "ge-1/1/1" address 10.3.4.4/24
+configure router interface "ge-1/1/1" port 1/1/1
+configure router interface "ge-1/1/2" address 10.2.4.4/24
+configure router interface "ge-1/1/2" port 1/1/2
+configure router interface "ge-1/1/4" address 10.4.9.4/24
+configure router interface "ge-1/1/4" port 1/1/4
+configure router isis area 49
+configure router isis level-capability level-2
+configure router isis level 2 wide-metrics-only
+configure router isis interface "system" passive
+configure router isis interface "ge-1/1/1" interface-type point-to-point
+configure router isis interface "ge-1/1/2" interface-type point-to-point
+configure router ldp implicit-null-label 
+configure router ldp interface-parameters interface "ge-1/1/1" no shutdown 
+configure router ldp interface-parameters interface "ge-1/1/2" no shutdown 
+configure router policy-options begin
+configure router policy-options prefix-list SYSTEM prefix 10.1.255.4/32 exact
+configure router policy-options policy-statement EXPORT_SYSTEM entry 10 from prefix-list "SYSTEM"
+configure router policy-options policy-statement "EXPORT_SYSTEM" entry 10 to protocol bgp
+exit
+configure router policy-options commit
+configure router autonomous-system 65000
+configure router bgp router-id 10.1.255.4xx`
+configure router bgp group RR local-address 10.1.255.4
+configure router bgp group RR peer-as 65000 
+configure router bgp group "RR" family ipv4 vpn-ipv4
+configure router bgp group "RR" neighbor 10.1.255.1 no shutdown 
+configure router bgp group "RR" neighbor 10.1.255.3 no shutdown
+configure router bgp group "RR" export "EXPORT_SYSTEM"
+configure service vprn 5678 customer 1 create
+ route-distinguisher 10.1.255.4:0
+ vrf-target target:65000:5678
+ auto-bind-tunnel resolution
+ interface "ge-1/1/3" create
+    address 10.4.5.4/24
+    sap 1/1/3 create
+    exit
+exit
+configure router ospf router-id 10.1.255.4
+configure router ospf asbr 
+configure router ospf area 0 interface "system" passive
+configure router ospf area 0 interface "ge-1/1/4"
+configure router ospf area 0 interface "ge-1/1/4" interface-type point-to-point
+configure router policy-options begin
+configure router policy-options policy-statement OSPF_TO_ISIS entry 10 
+ from protocol ospf
+ to protocol isis
+ action accept
+ back
+back
+exit
+configure router policy-options commit
+configure router isis export "OSPF_TO_ISIS"
+configure router policy-options begin
+configure router policy-options policy-statement ISIS_TO_OSPF entry 10 
+ from protocol isis
+ to protocol ospf
+ action accept
+ back
+back
+exit
+configure router policy-options commit
+configure router ospf export "ISIS_TO_OSPF"

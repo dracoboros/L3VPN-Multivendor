@@ -1,0 +1,13 @@
+en
+conf t
+no ip domain lookup
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+hostname R6
+int lo0
+ ip add 10.1.255.6 255.255.255.255
+int e0/0
+ ip add 10.2.6.6 255.255.255.0
+ no shut
+ip route 0.0.0.0 0.0.0.0 10.2.6.2

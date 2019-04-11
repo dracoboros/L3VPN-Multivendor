@@ -1,0 +1,35 @@
+configure
+set system host-name R2
+set interfaces lo0 unit 0 family inet address 10.1.255.2/32
+set interfaces lo0 unit 0 family iso address 49.0000.0000.0002.00
+set interfaces ge-0/0/0 unit 0 family inet address 10.1.2.2/24
+set interfaces ge-0/0/0 unit 0 family iso
+set interfaces ge-0/0/0 unit 0 family mpls
+set interfaces ge-0/0/1 unit 0 family inet address 10.2.4.2/24
+set interfaces ge-0/0/1 unit 0 family iso
+set interfaces ge-0/0/1 unit 0 family mpls
+set routing-options router-id 10.1.255.2
+set protocols ldp transport-address router-id
+set protocols ldp interface ge-0/0/0 
+set protocols ldp interface ge-0/0/1
+set protocols isis level 1 disable
+set protocols isis level 2 wide-metrics-only
+set protocols isis interface lo0.0 passive
+set protocols isis interface ge-0/0/0 point-to-point
+set protocols isis interface ge-0/0/1 point-to-point
+set routing-options autonomous-system 65000
+set protocols bgp group RR type internal
+set protocols bgp group RR family inet unicast
+set protocols bgp group RR family inet unicast
+set protocols bgp group RR family inet-vpn unicast
+set protocols bgp group RR neighbor 10.1.255.1 
+set protocols bgp group RR neighbor 10.1.255.3
+set policy-options policy-statement EXPORT_LOOPBACK term 10 from route-filter 10.1.255.2/32 exact
+set policy-options policy-statement EXPORT_LOOPBACK term 10 then accept
+set protocols bgp export EXPORT_LOOPBACK 
+set routing-instances LAB_L3VPN instance-type vrf
+set interfaces ge-0/0/2 unit 0 family inet address 10.2.6.2/24
+set routing-instances LAB_L3VPN interface ge-0/0/2.0
+set routing-instances LAB_L3VPN route-distinguisher 10.1.255.2:0
+set routing-instances LAB_L3VPN vrf-target target:65000:5678
+set routing-instances LAB_L3VPN vrf-table-label
