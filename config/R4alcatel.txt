@@ -25,10 +25,11 @@ configure router policy-options begin
 configure router policy-options prefix-list SYSTEM prefix 10.1.255.4/32 exact
 configure router policy-options policy-statement EXPORT_SYSTEM entry 10 from prefix-list "SYSTEM"
 configure router policy-options policy-statement "EXPORT_SYSTEM" entry 10 to protocol bgp
+configure router policy-options policy-statement "EXPORT_SYSTEM" entry 10 action accept
 exit
 configure router policy-options commit
 configure router autonomous-system 65000
-configure router bgp router-id 10.1.255.4xx`
+configure router bgp router-id 10.1.255.4
 configure router bgp group RR local-address 10.1.255.4
 configure router bgp group RR peer-as 65000 
 configure router bgp group "RR" family ipv4 vpn-ipv4
